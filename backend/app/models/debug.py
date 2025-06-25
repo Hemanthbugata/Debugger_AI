@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 
 class SourceReference(BaseModel):
     title: str
@@ -7,7 +7,6 @@ class SourceReference(BaseModel):
 
 class DebugRequest(BaseModel):
     error: str
-    code: Optional[str] = None
 
 class DebugResponse(BaseModel):
     summary: str

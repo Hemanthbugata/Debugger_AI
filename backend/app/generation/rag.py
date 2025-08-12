@@ -15,6 +15,25 @@ class RAGPipeline:
         context_text = ""
         sources = []
         
+        # Add vector search results if available
+        try:
+            from app.retrieval.vector_db import VectorDB
+            vectordb = VectorDB()
+            if vectordb.is_available():
+                vector_results = vectordb.search(user_query, top_k=3)
+                for result in vector_results:
+                    if 'content' in result:
+                        context_text += f"\nVector Search Result:\n{result['content']}\n"
+                        if 'link' in result and 'title' in result:
+                            sources.append({
+                                "title": result['title'],
+                                "link": result['link']
+                            })
+                    context_text += "---\n"
+        except Exception as e:
+            # Vector search failed, continue without it
+            pass
+        
         for post in context_posts:
             context_text += f"\nTitle: {post.get('title','')}\n"
             if 'question_body' in post:

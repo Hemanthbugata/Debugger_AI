@@ -7,9 +7,9 @@ class Settings:
     # Google Gemini Configuration
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyCDU4XLGIx8EM7Jxy0RHcoovmV9e1Wat2c")
     
-    # Pinecone Configuration
-    PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-    PINECONE_ENV = os.getenv("PINECONE_ENV", "us-west1-gcp")
+    # ChromaDB Configuration
+    CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH", "./chroma_data")
+    CHROMA_COLLECTION_NAME = os.getenv("CHROMA_COLLECTION_NAME", "debugger_errors")
     
     # Reddit Configuration
     REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
@@ -32,7 +32,6 @@ class Settings:
         ]
         
         optional_vars = [
-            ("PINECONE_API_KEY", self.PINECONE_API_KEY),
             ("REDDIT_CLIENT_ID", self.REDDIT_CLIENT_ID),
             ("REDDIT_CLIENT_SECRET", self.REDDIT_CLIENT_SECRET),
         ]
@@ -46,6 +45,12 @@ class Settings:
         if missing_optional:
             print(f"Warning: Missing optional environment variables: {', '.join(missing_optional)}")
             print("Some features may not work without these variables.")
+        
+        # Ensure ChromaDB directory exists
+        try:
+            os.makedirs(self.CHROMA_DB_PATH, exist_ok=True)
+        except Exception as e:
+            print(f"Warning: Could not create ChromaDB directory {self.CHROMA_DB_PATH}: {e}")
 
 settings = Settings()
 

@@ -50,16 +50,17 @@ class DebuggerAIUtils:
     
     @staticmethod
     async def test_vector_database():
-        """Test vector database (Pinecone) connection"""
+        """Test vector database (ChromaDB) connection"""
         try:
             from app.retrieval.vector_db import VectorDB
             vectordb = VectorDB()
             if vectordb.is_available():
-                return True, "Vector database (Pinecone) connected successfully"
+                info = vectordb.get_collection_info()
+                return True, f"ChromaDB connected successfully. Collection: {info['name']}, Documents: {info['count']}, Path: {info['path']}"
             else:
-                return False, "Vector database not available (API key missing or service unavailable)"
+                return False, "ChromaDB not available (initialization failed or directory not writable)"
         except Exception as e:
-            return False, f"Vector database connection failed: {e}"
+            return False, f"ChromaDB connection failed: {e}"
     
     @staticmethod
     async def test_all_connections():

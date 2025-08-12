@@ -39,10 +39,11 @@ Open `frontend/index.html` in your browser for a user-friendly interface.
 2. Create a new API key
 3. Add to .env: `GEMINI_API_KEY=AIza...`
 
-### Pinecone (Optional - for vector search)
-1. Go to https://www.pinecone.io/
-2. Create account and get API key
-3. Add to .env: `PINECONE_API_KEY=...`
+### ChromaDB (Automatic - for vector search)
+ChromaDB runs locally with persistent storage. No API key required.
+Data is stored in: `./chroma_data/`
+
+**Note**: ChromaDB is pinned to v0.4.18 with NumPy <2.0 for stability and compatibility.
 
 ### Reddit (Optional - for Reddit search)
 1. Go to https://www.reddit.com/prefs/apps/
@@ -128,8 +129,9 @@ docker run -p 8000:8000 --env-file .env debugger-ai
 - Try with a simpler error message
 
 ### Vector Search Not Working
-- Pinecone API key may be missing/invalid
+- ChromaDB data is stored locally in `./chroma_data/`
 - System falls back to direct search automatically
+- Check write permissions for the data directory
 
 ## 📈 Performance Tips
 

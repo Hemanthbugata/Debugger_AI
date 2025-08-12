@@ -7,7 +7,7 @@ An AI-powered debugging assistant that fetches solutions from StackOverflow and 
 - **Multi-Source Intelligence**: Searches StackOverflow and Reddit for relevant solutions
 - **AI-Enhanced Solutions**: Combines real-world solutions with Google Gemini's capabilities
 - **Fallback Mechanism**: Uses pure Gemini when no relevant sources are found
-- **Vector Database Integration**: Semantic search using Pinecone for better matching
+- **Vector Database Integration**: Semantic search using ChromaDB for better matching (v0.4.18 for stability)
 - **Comprehensive Error Analysis**: Analyzes error types, programming languages, and libraries
 - **RESTful API**: Easy integration with FastAPI backend
 - **Feedback System**: Learn from user feedback to improve recommendations
@@ -29,7 +29,7 @@ An AI-powered debugging assistant that fetches solutions from StackOverflow and 
 
 - Python 3.11+
 - Google Gemini API Key (Required)
-- Pinecone API Key (Optional - for vector search)
+- ChromaDB (Included - local vector database)
 - Reddit API Credentials (Optional - for Reddit search)
 
 ## 🛠️ Installation
@@ -69,9 +69,9 @@ GEMINI_API_KEY=your-gemini-api-key-here
 
 ### Optional Configuration
 ```env
-# For vector database search
-PINECONE_API_KEY=your-pinecone-api-key-here
-PINECONE_ENV=us-west1-gcp
+# For local vector database (ChromaDB)
+CHROMA_DB_PATH=./chroma_data
+CHROMA_COLLECTION_NAME=debugger_errors
 
 # For Reddit search
 REDDIT_CLIENT_ID=your-reddit-client-id-here
@@ -156,7 +156,7 @@ python -m app.ingestion.data_ingestion
 This will:
 - Search for common programming errors
 - Generate embeddings for found content
-- Store in Pinecone vector database
+- Store in ChromaDB vector database
 - Enable semantic search capabilities
 
 ## 🏃‍♂️ How It Works
@@ -256,10 +256,10 @@ pytest tests/test_debug.py::test_debug_endpoint
    - Verify sufficient credits
    - Check rate limits
 
-2. **Pinecone Connection Issues**
-   - Verify API key and environment
-   - Check index creation permissions
-   - Ensure correct dimension settings
+2. **ChromaDB Issues**
+   - Check write permissions for `./chroma_data/` directory
+   - Ensure sufficient disk space
+   - Check if port conflicts exist
 
 3. **Reddit API Issues**
    - Verify app credentials

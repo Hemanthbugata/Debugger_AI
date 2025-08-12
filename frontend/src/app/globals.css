@@ -276,7 +276,7 @@ body {
 }
 
 .chatgpt-code-block {
-  background: #1e293b;
+  background: #ffffff;
   border-radius: 12px;
   padding: 20px;
   margin: 16px 0;
@@ -290,7 +290,7 @@ body {
 }
 
 .chatgpt-code-block code {
-  color: #e2e8f0;
+  color: #010c17;
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -300,8 +300,8 @@ body {
   top: 12px;
   right: 12px;
   background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  border: 2px solid rgba(141, 239, 124, 0.3);
+  color: rgb(0, 1, 0);
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 0.8rem;

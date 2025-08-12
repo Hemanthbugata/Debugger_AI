@@ -81,6 +81,30 @@ const pulseVariants = {
   }
 }
 
+const sparkleVariants = {
+  animate: {
+    scale: [0, 1, 0],
+    rotate: [0, 180, 360],
+    opacity: [0, 1, 0],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+}
+
+const typewriterVariants = {
+  hidden: { width: 0 },
+  visible: {
+    width: "100%",
+    transition: {
+      duration: 2,
+      ease: "easeInOut"
+    }
+  }
+}
+
 export default function Home() {
   const [error, setError] = useState('')
   const [result, setResult] = useState<string | null>(null)
@@ -131,35 +155,137 @@ export default function Home() {
       if (match.index > lastIndex) {
         let text = result.slice(lastIndex, match.index)
         text = text.replace(/[\*'`]/g, '')
-        elements.push(
-          <motion.div 
-            key={idx++} 
-            className="chatgpt-text"
-            initial={{ opacity: 0, y: 10, x: -10 }}
-            animate={{ opacity: 1, y: 0, x: 0 }}
-            transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
-          >
-            {text}
-          </motion.div>
-        )
+        
+        // Split text into readable chunks
+        const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim())
+        sentences.forEach((sentence, sentenceIdx) => {
+          elements.push(
+            <motion.div 
+              key={`text-${idx++}`} 
+              className="chatgpt-text-sentence"
+              initial={{ opacity: 0, y: 10, x: -10 }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              transition={{ 
+                delay: (idx + sentenceIdx) * 0.15, 
+                type: "spring", 
+                stiffness: 100 
+              }}
+              style={{
+                fontSize: '1.1rem',
+                lineHeight: '1.6',
+                marginBottom: '0.8rem',
+                padding: '0.5rem 0',
+                borderLeft: sentence.includes('Error:') || sentence.includes('Solution:') 
+                  ? '3px solid #0fd39f' : 'none',
+                paddingLeft: sentence.includes('Error:') || sentence.includes('Solution:') 
+                  ? '1rem' : '0',
+                backgroundColor: sentence.includes('Error:') || sentence.includes('Solution:') 
+                  ? 'rgba(15, 211, 159, 0.05)' : 'transparent',
+                borderRadius: '4px'
+              }}
+            >
+              {sentence.includes('Error:') && (
+                <motion.span 
+                  className="error-badge"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: (idx + sentenceIdx) * 0.15 + 0.2 }}
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontSize: '0.8rem',
+                    marginRight: '8px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  🚨 ERROR
+                </motion.span>
+              )}
+              {sentence.includes('Solution:') && (
+                <motion.span 
+                  className="solution-badge"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: (idx + sentenceIdx) * 0.15 + 0.2 }}
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: '#22c55e',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontSize: '0.8rem',
+                    marginRight: '8px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ✅ SOLUTION
+                </motion.span>
+              )}
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: (idx + sentenceIdx) * 0.15 + 0.3 }}
+              >
+                {sentence}
+              </motion.span>
+            </motion.div>
+          )
+        })
       }
       let code = match[2].replace(/[\*'`]/g, '')
       elements.push(
         <motion.div 
-          key={idx++} 
+          key={`code-${idx++}`} 
           className="chatgpt-code-block"
           initial={{ opacity: 0, scale: 0.9, rotateX: -10 }}
           animate={{ opacity: 1, scale: 1, rotateX: 0 }}
           transition={{ delay: idx * 0.15, type: "spring", stiffness: 120 }}
           whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
+          style={{ position: 'relative' }}
         >
-          <pre><code>{code}</code></pre>
+          <motion.div
+            className="code-header"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.15 + 0.2 }}
+            style={{
+              background: 'linear-gradient(90deg, #0fd39f, #22c55e)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '8px 8px 0 0',
+              fontSize: '0.9rem',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <motion.span
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              💻
+            </motion.span>
+            Code Solution
+          </motion.div>
+          <pre style={{ margin: 0, borderRadius: '0 0 8px 8px' }}>
+            <code>{code}</code>
+          </pre>
           <motion.button 
             className="copy-btn" 
             onClick={() => handleCopy(code)}
             whileHover={{ scale: 1.05, backgroundColor: "#0fd39f" }}
             whileTap={{ scale: 0.95 }}
             animate={copied ? { scale: [1, 1.1, 1], backgroundColor: "#22c55e" } : {}}
+            style={{
+              position: 'absolute',
+              top: '45px',
+              right: '12px',
+              zIndex: 10
+            }}
           >
             <motion.span
               animate={copied ? { rotate: [0, 360] } : {}}
@@ -175,17 +301,26 @@ export default function Home() {
     
     if (lastIndex < result.length) {
       let text = result.slice(lastIndex).replace(/[\*'`]/g, '')
-      elements.push(
-        <motion.div 
-          key={idx++} 
-          className="chatgpt-text"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.1 }}
-        >
-          {text}
-        </motion.div>
-      )
+      const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim())
+      sentences.forEach((sentence, sentenceIdx) => {
+        elements.push(
+          <motion.div 
+            key={`final-text-${idx++}`} 
+            className="chatgpt-text-sentence"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: (idx + sentenceIdx) * 0.1 }}
+            style={{
+              fontSize: '1.1rem',
+              lineHeight: '1.6',
+              marginBottom: '0.8rem',
+              padding: '0.5rem 0'
+            }}
+          >
+            {sentence}
+          </motion.div>
+        )
+      })
     }
     
     if (elements.length === 0) {
@@ -195,6 +330,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "spring", stiffness: 100 }}
+          style={{ fontSize: '1.1rem', lineHeight: '1.6' }}
         >
           {result.replace(/[\*'`]/g, '')}
         </motion.div>
@@ -205,7 +341,7 @@ export default function Home() {
 
   return (
     <div className="app-responsive-container">
-      {/* Animated background elements */}
+      {/* Enhanced animated background elements */}
       <motion.div
         className="fixed inset-0 -z-10"
         initial={{ opacity: 0 }}
@@ -213,9 +349,53 @@ export default function Home() {
         transition={{ duration: 1 }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-green-50" />
+        
+        {/* Floating code symbols */}
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={`symbol-${i}`}
+            className="absolute text-blue-200 opacity-20 font-mono text-2xl"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-20, 20, -20],
+              rotate: [0, 180, 360],
+              opacity: [0.1, 0.3, 0.1],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          >
+            {['</>', '{}', '[]', '()', '&&', '||', '=>', '!='][i % 8]}
+          </motion.div>
+        ))}
+
+        {/* Sparkle effects */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={`sparkle-${i}`}
+            className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-green-400 rounded-full"
+            style={{
+              left: `${20 + Math.random() * 60}%`,
+              top: `${20 + Math.random() * 60}%`,
+            }}
+            variants={sparkleVariants}
+            animate="animate"
+            transition={{
+              delay: i * 0.5,
+              repeat: Infinity,
+            }}
+          />
+        ))}
+
+        {/* Original floating dots */}
         {[...Array(20)].map((_, i) => (
           <motion.div
-            key={i}
+            key={`dot-${i}`}
             className="absolute w-1 h-1 bg-blue-300 rounded-full opacity-30"
             style={{
               left: `${Math.random() * 100}%`,
@@ -389,12 +569,21 @@ export default function Home() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: '2rem',
+            maxWidth: '1200px',
+            margin: '0 auto'
+          }}
         >
           {[
-            { icon: "⚡", title: "Instant Solutions", desc: "Get fixes for errors in seconds, not hours." },
-            { icon: "🤖", title: "AI-Powered", desc: "Advanced LLMs analyze your code and errors." },
-            { icon: "🧑‍💻", title: "Multi-Language", desc: "Supports Python, JavaScript, React, and more." },
-            { icon: "🔒", title: "Secure", desc: "Your code & errors are never stored." }
+            { icon: "⚡", title: "Instant Solutions", desc: "Get fixes for errors in seconds, not hours. No more endless searching through documentation." },
+            { icon: "🤖", title: "AI-Powered", desc: "Advanced LLMs analyze your code and errors with human-like understanding and precision." },
+            { icon: "🧑‍💻", title: "Multi-Language", desc: "Supports Python, JavaScript, React, Java, C++, and 20+ programming languages." },
+            { icon: "🔒", title: "Secure & Private", desc: "Your code & errors are never stored. All processing happens in real-time with zero data retention." },
+            { icon: "📚", title: "Learning Mode", desc: "Get detailed explanations of why errors occur and how to prevent them in the future." },
+            { icon: "🌐", title: "Community Insights", desc: "Access solutions from Stack Overflow, GitHub, and developer communities in one place." }
           ].map((feature, idx) => (
             <motion.div 
               key={idx}
@@ -402,7 +591,24 @@ export default function Home() {
               variants={cardVariants}
               whileHover="hover"
               whileTap={{ scale: 0.95 }}
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
             >
+              {/* Animated background gradient */}
+              <motion.div
+                className="absolute inset-0 opacity-0"
+                style={{
+                  background: 'linear-gradient(45deg, rgba(15, 211, 159, 0.1), rgba(34, 197, 94, 0.1))',
+                }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+              
               <motion.div 
                 className="feature-icon"
                 animate={{ 
@@ -420,24 +626,64 @@ export default function Home() {
                   rotate: 360,
                   transition: { duration: 0.5 }
                 }}
+                style={{ 
+                  fontSize: '3rem',
+                  marginBottom: '1rem',
+                  position: 'relative',
+                  zIndex: 2
+                }}
               >
                 {feature.icon}
               </motion.div>
+              
               <motion.div 
                 className="feature-title"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ delay: 0.3 + idx * 0.1 }}
+                style={{ 
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  marginBottom: '0.8rem',
+                  color: '#1f2937',
+                  position: 'relative',
+                  zIndex: 2
+                }}
               >
                 {feature.title}
               </motion.div>
+              
               <motion.div 
                 className="feature-desc"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ delay: 0.4 + idx * 0.1 }}
+                style={{ 
+                  fontSize: '1rem',
+                  lineHeight: '1.6',
+                  color: '#6b7280',
+                  position: 'relative',
+                  zIndex: 2
+                }}
               >
                 {feature.desc}
+              </motion.div>
+
+              {/* Floating mini icons */}
+              <motion.div
+                className="absolute top-4 right-4 opacity-10"
+                animate={{
+                  rotate: [0, 360],
+                  scale: [0.8, 1.2, 0.8],
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                style={{ fontSize: '1.5rem' }}
+              >
+                {feature.icon}
               </motion.div>
             </motion.div>
           ))}

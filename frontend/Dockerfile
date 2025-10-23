@@ -1,11 +1,12 @@
-FROM node:18-alpine AS build
+# Use Debian slim images to avoid Alpine/musl native binary build failures (esbuild/swc)
+FROM node:18-bullseye-slim AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:18-alpine AS runtime
+FROM node:18-bullseye-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000

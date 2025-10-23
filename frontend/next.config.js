@@ -11,4 +11,5 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+// Replace ESM export with CommonJS for compatibility in the Docker build
+module.exports = nextConfig

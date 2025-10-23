@@ -120,7 +120,8 @@ export default function Home() {
     setReferences([])
     setSummary(null)
     try {
-      const res = await fetch('http://localhost:8000/debug/', {
+      const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+      const res = await fetch(`${apiBase}/debug/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error })
